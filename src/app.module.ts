@@ -9,8 +9,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Member } from './member/entities/member.entity';
 
 @Module({
-  imports: [AuthModule, MemberModule,
-
+  imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: '34.64.99.131',
@@ -21,6 +20,7 @@ import { Member } from './member/entities/member.entity';
       entities: [Member],
       synchronize: true,
     }),
+    AuthModule, MemberModule,
   ],
   controllers: [AppController, AuthController],
   providers: [AppService, AuthService],

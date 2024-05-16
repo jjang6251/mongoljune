@@ -29,8 +29,8 @@ export class MemberService {
     return `This action returns all member`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} member`;
+  findOne(userid: string) {
+    return this.memberRepository.findOne({where: {userid}});
   }
 
   update(id: number, updateMemberDto: UpdateMemberDto) {

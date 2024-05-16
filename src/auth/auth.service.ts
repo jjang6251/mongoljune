@@ -1,4 +1,33 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { MemberService } from 'src/member/member.service';
+import { LoginDto } from './dto/logindto.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
-export class AuthService {}
+export class AuthService {
+    constructor(
+        private memberService: MemberService,
+        private jwtService: JwtService,
+    ) { }
+
+    async signIn(loginDto:LoginDto): Promise<{ access_token: string }> {
+        const user = await this.memberService.findOne(loginDto.userid);
+
+        if(!user) {
+            throw new UnauthorizedException();
+        }
+
+        const isMatch = await bcrypt.compare(loginDto.password, user.password);
+    
+        if (!isMatch) {
+          throw new UnauthorizedException();
+        }
+        
+        const payload = { sub: user.id, name: user.name, birth: user.birth };
+        const access_token = await this.jwtService.signAsync(payload)
+        return {
+          access_token: `Bearer ${access_token}`,
+        };
+      }
+}
