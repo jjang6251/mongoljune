@@ -1,0 +1,40 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Login Dockerhub
+      
+      run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}      
+
+    - name: Build the Docker image
+      run: docker build -t mongol .
+
+    - name: taging
+      run: docker tag mongol:latest jjang6251/mongol:latest
+
+    - name: Push to Dockerhub
+      run: docker push jjang6251/mongol:latest
+    
+  deploy:
+
+    runs-on: self-hosted
+
+    steps:
+    - name: Pull Docker image
+      run: sudo docker pull jjang6251/mongol:latest
+    - name: Delete Old docker container
+      run: sudo docker rm -f mongol-container || true
+    - name: Run Docker Container
+      run: sudo docker run -d -p 3000:3000 --name mongol-container jjang6251/mongol
