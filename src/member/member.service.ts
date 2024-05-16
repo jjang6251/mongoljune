@@ -11,7 +11,7 @@ export class MemberService {
 
   constructor(@InjectRepository(Member) private memberRepository:Repository<Member>){}
 
-  async create(createMemberDto: CreateMemberDto): Promise<Member> {
+  async create(createMemberDto: CreateMemberDto): Promise<{message:string}> {
     const saltRounds = 10;
     const hash = await bcrypt.hash(createMemberDto.password, saltRounds);
     const saveData = {
@@ -21,7 +21,8 @@ export class MemberService {
       birth: createMemberDto.birth
     };
     const newMember = this.memberRepository.create(saveData);
-    return this.memberRepository.save(newMember);
+    this.memberRepository.save(newMember);
+    return {message:"회원가입 완료"}
   }
 
   findAll() {
