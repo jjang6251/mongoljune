@@ -12,8 +12,8 @@ RUN npm install
 
 # 소스 코드 복사
 COPY . .
-
-ENV OPENAI_API_KEY=process.env['OPENAI_API_KEY']
+ARG OPENAI_API_KEY
+ENV OPENAI_API_KEY $OPENAI_API_KEY
 
 # 앱 실행
 CMD [ "npm", "start" ]
