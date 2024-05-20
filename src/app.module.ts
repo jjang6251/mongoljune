@@ -7,6 +7,10 @@ import { AuthModule } from './auth/auth.module';
 import { MemberModule } from './member/member.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Member } from './member/entities/member.entity';
+import { OpenaiService } from './openai/openai.service';
+import { OpenaiController } from './openai/openai.controller';
+import { OpenaiModule } from './openai/openai.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -20,9 +24,10 @@ import { Member } from './member/entities/member.entity';
       entities: [Member],
       synchronize: true,
     }),
-    AuthModule, MemberModule,
+    ConfigModule.forRoot(),
+    AuthModule, MemberModule, OpenaiModule,
   ],
-  controllers: [AppController, AuthController],
-  providers: [AppService, AuthService],
+  controllers: [AppController, AuthController, OpenaiController],
+  providers: [AppService, AuthService, OpenaiService],
 })
 export class AppModule {}
