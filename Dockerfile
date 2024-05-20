@@ -13,5 +13,7 @@ RUN npm install
 # 소스 코드 복사
 COPY . .
 
+ENV OPENAI_API_KEY=${OPENAI_API_KEY}
+
 # 앱 실행
 CMD [ "npm", "start" ]
