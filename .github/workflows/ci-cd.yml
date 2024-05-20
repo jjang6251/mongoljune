@@ -19,7 +19,7 @@ jobs:
       run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}      
 
     - name: Build the Docker image
-      run: docker build --build-arg OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} -t mongol .
+      run: docker build -t mongol .
 
     - name: taging
       run: docker tag mongol:latest ${{ secrets.DOCKERHUB_USERNAME }}/mongol:latest
