@@ -12,6 +12,7 @@ RUN npm install
 
 # 소스 코드 복사
 COPY . .
+
 ARG OPENAI_API_KEY
 ENV OPENAI_API_KEY $OPENAI_API_KEY
 
