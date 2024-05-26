@@ -1,15 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { OpenAI } from 'openai';
-
+import { OpenAIDto } from './dto/openai.dto';
+import { MyResponseDto } from './dto/myresponse.dto';
 
 const addPrompt: string =
-    "I'll give you the text. You can summarize this text in the form of a child's diary. He speaks like a child. The summary can be written in Korean. And don't make up things that don't exist. Emphasize. Don't make up words that don't exist. I'll give you an example. Please respond in this tone. \n";
+    "\n\n이걸 읽고 어린 아이가 일기 쓰는 어투로 바꿔줘.\n";
 
-const example: string =
-    "example: 오늘 하루도 재밌었다. 또 떡볶이 먹으러 가고 싶다.";
+const askTitle: string = 
+    "위 일기를 보고 제목을 지어줘";
 
-
-
+const askWeather: string = 
+    "위 일기를 읽고 날씨를 알려줘. 대신 대답은(맑음, 비, 눈, 흐림)에서만 골라서 대답해줘. 대답 예시를 보여줄게 괄호 안에 처럼 대답하면 돼: (맑음)";
 
 @Injectable()
 export class OpenaiService {
@@ -23,20 +24,56 @@ export class OpenaiService {
         this.conversationState = null;
     }
 
-    async generateChatResponse(prompt: string): Promise<{diary:string}> {
-        const params: OpenAI.Chat.ChatCompletionCreateParams = {
-            messages: [{ role: 'user', content: addPrompt + example + prompt }],
+    async generateChatResponse(user, openaidto: OpenAIDto): Promise<MyResponseDto> {
+        let myresponse: MyResponseDto = {};
+
+        // 첫번째 질문: prompt를 일기 형식으로 요약해줘
+        const firstparams: OpenAI.Chat.ChatCompletionCreateParams = {
+            messages: [{ role: 'user', content: openaidto.prompt+addPrompt  }],
             model: 'gpt-3.5-turbo-0613',
         };
 
         try {
-            const chatCompletion: OpenAI.Chat.ChatCompletion = await this.openai.chat.completions.create(params);
-            this.conversationState = null;
-            return {diary: chatCompletion.choices[0].message?.content.trim() || 'No response'};
+            const chatCompletion: OpenAI.Chat.ChatCompletion = await this.openai.chat.completions.create(firstparams);
+            const response = chatCompletion.choices[0].message?.content.trim() || 'No response';
+            myresponse.content = response;
         } catch (error) {
             console.error('Error generating chat completion:', error);
             throw error;
         }
-    }
 
+        // 두번째 질문: 이 글의 title을 알려줘
+        const secondparams: OpenAI.Chat.ChatCompletionCreateParams = {
+            messages: [{ role: 'user', content: openaidto.prompt+askTitle}],
+            model: 'gpt-3.5-turbo-0613',
+        };
+
+        try {
+            const chatCompletion: OpenAI.Chat.ChatCompletion = await this.openai.chat.completions.create(secondparams);
+            const response = chatCompletion.choices[0].message?.content.trim() || 'No response';
+            myresponse.title = response;
+        } catch (error) {
+            console.error('Error generating chat completion:', error);
+            throw error;
+        }
+
+        // 세번째 질문: 이 글의 날씨를 알려줘(맑음, 흐림, 비, 눈)
+        const thirdparams: OpenAI.Chat.ChatCompletionCreateParams = {
+            messages: [{ role: 'user', content: openaidto.prompt+askWeather}],
+            model: 'gpt-3.5-turbo-0613',
+        };
+
+        try {
+            const chatCompletion: OpenAI.Chat.ChatCompletion = await this.openai.chat.completions.create(thirdparams);
+            const response = chatCompletion.choices[0].message?.content.trim() || 'No response';
+            myresponse.weather = response;
+        } catch (error) {
+            console.error('Error generating chat completion:', error);
+            throw error;
+        }
+        myresponse.auth = user.name;
+        myresponse.date = openaidto.date;
+        this.conversationState = null;
+        return myresponse;
+    }
 }

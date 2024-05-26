@@ -1,12 +1,16 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Request } from '@nestjs/common';
 import { OpenaiService } from './openai.service';
+import { OpenAIDto } from './dto/openai.dto';
+import { MyResponseDto } from './dto/myresponse.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('openai')
 export class OpenaiController {
     constructor(private readonly openaiService: OpenaiService) { }
 
+    @UseGuards(AuthGuard)
     @Post('generate')
-    async generate(@Body('prompt') prompt: string): Promise<{diary:string}> {
-        return this.openaiService.generateChatResponse(prompt);
+    async generate(@Request() req, @Body() openaidto:OpenAIDto): Promise<MyResponseDto> {
+        return this.openaiService.generateChatResponse(req.user, openaidto);
     }
 }
