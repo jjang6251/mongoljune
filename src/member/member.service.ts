@@ -5,9 +5,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Member } from './entities/member.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { Memberinter } from './interface/member.interface';
 
 @Injectable()
-export class MemberService {
+export class MemberService implements Memberinter{
 
   constructor(@InjectRepository(Member) private memberRepository:Repository<Member>){}
 
@@ -35,19 +36,19 @@ export class MemberService {
     throw new HttpException('회원가입 완료', HttpStatus.CREATED);
   }
 
-  findAll() {
-    return `This action returns all member`;
-  }
+  // findAll() {
+  //   return `This action returns all member`;
+  // }
 
   findOne(userid: string) {
     return this.memberRepository.findOne({where: {userid}});
   }
 
-  update(id: number, updateMemberDto: UpdateMemberDto) {
-    return `This action updates a #${id} member`;
-  }
+  // update(id: number, updateMemberDto: UpdateMemberDto) {
+  //   return `This action updates a #${id} member`;
+  // }
 
-  remove(id: number) {
-    return `This action removes a #${id} member`;
-  }
+  // remove(id: number) {
+  //   return `This action removes a #${id} member`;
+  // }
 }

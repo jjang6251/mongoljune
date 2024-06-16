@@ -1,8 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MemberService } from './member.service';
+import { Memberinter } from './interface/member.interface';
+
+// const mockMemberService: Partial<Memberinter> = {
+//   create: jest
+// }
 
 describe('MemberService', () => {
-  let service: MemberService;
+  let service: Memberinter;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

@@ -12,23 +12,23 @@ export class MemberController {
     return this.memberService.create(createMemberDto);
   }
 
-  @Get()
-  findAll() {
-    return this.memberService.findAll();
-  }
+  // @Get()
+  // findAll() {
+  //   return this.memberService.findAll();
+  // }
 
   // @Get(':id')
   // findOne(@Param('id') id: string) {
   //   return this.memberService.findOne(+);
   // }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMemberDto: UpdateMemberDto) {
-    return this.memberService.update(+id, updateMemberDto);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateMemberDto: UpdateMemberDto) {
+  //   return this.memberService.update(+id, updateMemberDto);
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.memberService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.memberService.remove(+id);
+  // }
 }
