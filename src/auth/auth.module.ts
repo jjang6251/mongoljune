@@ -10,7 +10,7 @@ import { AuthController } from './auth.controller';
         JwtModule.register({
             global: true,
             //secret: jwtConstants.secret,
-            secret: 'secret',
+            secret: process.env['SECRET_KEY'],
             signOptions: { expiresIn: '10h' },
         }),
     ],

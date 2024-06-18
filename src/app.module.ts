@@ -15,13 +15,14 @@ import { DomainController } from './domain/domain.controller';
 
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: '34.64.99.131',
+      host: process.env['DB_HOST'],
       port: 3306,
-      username: 'jjang',
-      password: 'assaassa0319',
-      database: 'nest',
+      username: process.env['DB_USER'],
+      password: process.env['DB_PASSWORD'],
+      database: 'mongol',
       entities: [Member],
       synchronize: true,
     }),
