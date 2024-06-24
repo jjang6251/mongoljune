@@ -90,6 +90,12 @@ export class OpenaiService {
     }
 
     async getDiaryList(user) {
-        return await this.diaryRepository.find({ where: { auth_id: user.auth_id } })
+        const diaries = await this.diaryRepository.find({ where: { auth_id: user.userid } });
+
+        if(diaries.length === 0) {
+            throw new HttpException('등록된 글 없음', HttpStatus.NO_CONTENT);
+        }
+
+        return diaries;
     }
 }
