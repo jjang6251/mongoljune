@@ -2,6 +2,7 @@ export class MyResponseDto {
     title?: string;
     weather?: string;
     auth?: string;
-    date?: Date;
+    date?: string;
     content?: string;
+    auth_id?: string;
 }

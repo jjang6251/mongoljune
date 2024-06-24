@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards, Request } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Request, Get } from '@nestjs/common';
 import { OpenaiService } from './openai.service';
 import { OpenAIDto } from './dto/openai.dto';
 import { MyResponseDto } from './dto/myresponse.dto';
@@ -12,5 +12,11 @@ export class OpenaiController {
     @Post('generate')
     async generate(@Request() req, @Body() openaidto:OpenAIDto): Promise<MyResponseDto> {
         return this.openaiService.generateChatResponse(req.user, openaidto);
+    }
+    
+    @UseGuards(AuthGuard)
+    @Get('diarylist')
+    async getList(@Request() req) {
+        return this.openaiService.getDiaryList(req.user);
     }
 }

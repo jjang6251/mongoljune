@@ -3,4 +3,6 @@ export class CreateMemberDto {
     readonly password: string;
     readonly name: string;
     readonly birth: string;
+    readonly is_parent: boolean;
+    readonly child_id ?: string;
 }

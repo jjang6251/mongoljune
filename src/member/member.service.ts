@@ -21,6 +21,8 @@ export class MemberService implements Memberinter{
     const hash = await bcrypt.hash(createMemberDto.password, saltRounds);
     const saveData = {
       userid: createMemberDto.userid,
+      is_parent: createMemberDto.is_parent,
+      child_id: createMemberDto.child_id || null,
       password: hash,
       name: createMemberDto.name,
       birth: createMemberDto.birth

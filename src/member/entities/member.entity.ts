@@ -17,5 +17,11 @@ export class Member {
     @Column()
     birth: Date;
 
+    @Column()
+    is_parent: boolean;
+
+    @Column({nullable:true})
+    child_id ?: string
+
 
 }

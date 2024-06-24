@@ -7,11 +7,14 @@ import { AuthModule } from './auth/auth.module';
 import { MemberModule } from './member/member.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Member } from './member/entities/member.entity';
+import { Diary } from './openai/entities/diary.entity';
 import { OpenaiService } from './openai/openai.service';
 import { OpenaiController } from './openai/openai.controller';
 import { OpenaiModule } from './openai/openai.module';
 import { ConfigModule } from '@nestjs/config';
 import { DomainController } from './domain/domain.controller';
+import { DataSource } from 'typeorm';
+
 
 @Module({
   imports: [
@@ -23,13 +26,15 @@ import { DomainController } from './domain/domain.controller';
       username: process.env['DB_USER'],
       password: process.env['DB_PASSWORD'],
       database: 'mongol',
-      entities: [Member],
+      entities: [Member, Diary],
       synchronize: true,
     }),
     ConfigModule.forRoot(),
     AuthModule, MemberModule, OpenaiModule,
   ],
-  controllers: [AppController, AuthController, OpenaiController, DomainController],
-  providers: [AppService, AuthService, OpenaiService],
+  // controllers: [AppController, AuthController, OpenaiController, DomainController],
+  providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(private dataSource: DataSource) {}
+}
