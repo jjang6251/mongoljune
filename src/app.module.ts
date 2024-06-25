@@ -14,6 +14,7 @@ import { OpenaiModule } from './openai/openai.module';
 import { ConfigModule } from '@nestjs/config';
 import { DomainController } from './domain/domain.controller';
 import { DataSource } from 'typeorm';
+import { Comment } from './openai/entities/comment.entity';
 
 
 @Module({
@@ -26,7 +27,7 @@ import { DataSource } from 'typeorm';
       username: process.env['DB_USER'],
       password: process.env['DB_PASSWORD'],
       database: 'mongol',
-      entities: [Member, Diary],
+      entities: [Member, Diary, Comment],
       synchronize: true,
     }),
     ConfigModule.forRoot(),

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { OpenAI } from 'openai';
 import { OpenAIDto } from './dto/openai.dto';
 import { MyResponseDto } from './dto/myresponse.dto';
@@ -7,6 +7,8 @@ import { Diary } from './entities/diary.entity';
 import { Repository } from 'typeorm';
 import { FineTuningJobCheckpointsPage } from 'openai/resources/fine-tuning/jobs/checkpoints';
 import { DiaryListDto } from './dto/diarylist.dto';
+import { CommentDto } from './dto/comment.dto';
+import { Comment } from './entities/comment.entity';
 
 const addPrompt: string =
     "\n\n이걸 읽고 어린 아이가 일기 쓰는 어투로 바꿔줘.\n";
@@ -22,7 +24,7 @@ export class OpenaiService {
     private openai: OpenAI;
     private conversationState: any;
 
-    constructor(@InjectRepository(Diary) private diaryRepository: Repository<Diary>) {
+    constructor(@InjectRepository(Diary) private diaryRepository: Repository<Diary>, @InjectRepository(Comment) private commentRepository: Repository<Comment>) {
         this.openai = new OpenAI({
             apiKey: process.env['OPENAI_API_KEY'],
         });
@@ -90,12 +92,85 @@ export class OpenaiService {
     }
 
     async getDiaryList(user) {
-        const diaries = await this.diaryRepository.find({ where: { auth_id: user.userid } });
+        if (user.is_parent) {
+            const diaries = await this.diaryRepository.find({ where: { auth_id: user.child_id } });
 
-        if(diaries.length === 0) {
-            throw new HttpException('등록된 글 없음', HttpStatus.NO_CONTENT);
+            if (diaries.length === 0) {
+                throw new HttpException('등록된 글 없음', HttpStatus.NO_CONTENT);
+            }
+
+            return diaries;
+        } else {
+            const diaries = await this.diaryRepository.find({ where: { auth_id: user.userid } });
+
+            if (diaries.length === 0) {
+                throw new HttpException('등록된 글 없음', HttpStatus.NO_CONTENT);
+            }
+
+            return diaries;
         }
+    }
 
-        return diaries;
+    async getDiary(user, id) {
+        if (user.is_parent) {
+            const diary_id = parseInt(id);
+
+            const diary = await this.diaryRepository.findOne({ where: { auth_id: user.child_id, id: diary_id } });
+
+            if (!diary) {
+                throw new NotFoundException('다이어리 없음');
+            }
+
+            return diary;
+        } else {
+            const diary_id = parseInt(id);
+
+            const diary = await this.diaryRepository.findOne({ where: { auth_id: user.userid, id: diary_id } });
+
+            if (!diary) {
+                throw new NotFoundException('다이어리 없음');
+            }
+
+            return diary;
+        }
+    }
+
+    async writeComment(user, id, commentDto: CommentDto) {
+        const auth_content_id = parseInt(id);
+        const saveComment = {
+            auth_id: commentDto.auth_id,
+            auth_content_id: auth_content_id,
+            writer: user.userid,
+            comment: commentDto.comment
+        };
+
+        try {
+            const newComment = await this.commentRepository.create(saveComment);
+            await this.commentRepository.save(newComment);
+        } catch (error) {
+            throw new HttpException('댓글 저장에 실패했습니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    async getComment(user, id) {
+        const diary_id = parseInt(id);
+
+        if (user.is_parent) {
+            const comments = await this.commentRepository.find({ where: { auth_id: user.child_id, auth_content_id: diary_id } });
+
+            if (comments.length === 0) {
+                throw new NotFoundException('댓글 없음');
+            }
+
+            return comments;
+        } else {
+            const comments = await this.commentRepository.find({ where: { auth_id: user.userid, auth_content_id: diary_id } });
+
+            if (comments.length === 0) {
+                throw new NotFoundException('댓글 없음');
+            }
+
+            return comments;
+        }
     }
 }
